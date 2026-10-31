@@ -3,6 +3,14 @@
 FM1VST's releases. The version is `project(FM1VST VERSION ..)` in CMakeLists.txt (the plugin shows it in its
 settings sheet); a release is the tag `v<version>` on it (.github/workflows/release.yml builds and publishes it).
 
+## Unreleased
+
+- **AURORA 0.7.10.** Cinematic ambient firmware by twochannels, added as a public Dinghy-family core. Settings,
+  both edited scenes and sixteen USER slots survive in the plugin's flash state. MIDI macros and expression work;
+  SAVE, GLO sends the sound to AURORA's share page through **Show to editors**. The upstream host uses switch keys
+  (no physical analog sensing) and runs its audio-worker jobs inline. Credits and the missing Terminus Font OFL
+  notice are included.
+
 ## 0.6.2 (2026-10-27): Remote FM-1 over Bluetooth MIDI
 
 - **Remote FM-1 over Bluetooth MIDI.** A unit on RemoteFM1 0.2 or later, paired with the Mac over Bluetooth (it shows

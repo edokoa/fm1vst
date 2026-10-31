@@ -254,6 +254,7 @@ juce::String EditorPort::usbProductName(const juce::String &idIn)
         {"frodhes", "Felucca"},            {"dinghy", "Felucca"},               {"amb", "AMB-1 FM-1"},
         {"salt", "Felucca"},               {"jangada", "Felucca"},              {"waveloop", "Felucca"},
         {"gammawave", "Felucca"},          {"fm1quest", "Felucca"},             {"grimm", "Felucca"},
+        {"aurora", "Felucca"},
         {"zp12", "Felucca"},               {"minitone", "Felucca"},             {"skiff", "Felucca"},
         {"fmini", "FM-1 Midi"},            // (FMini-1's usb.c STR2: the MIDI / audio device's name)
         // fm1-base apps: their fm1.toml usb_product
@@ -287,6 +288,7 @@ juce::String EditorPort::managerUrl(const juce::String &idIn, const juce::String
         {"fmini", "https://ruppert.github.io/fmini-1/editor/"},
         {"skiff", "https://illuminus5.github.io/skiff/webapp/editor/"},
         {"grimm", "https://grimmbient.github.io/grimm/editor.html"},
+        {"aurora", "https://twochannels.github.io/AURORA/share.html"},
         {"pigeon", "https://theshrimpblimp.com/pigeon/webapp/pigeon/"},   // (its sample loader: the bank, web/pigeon)
         {"tonitor", "https://nzimas.github.io/tonitor/backup.html"},   // (no editor: the sessions' backup page)
         {"speak37", "https://genkigenki.github.io/smk37/"},   // (no editor: its installer, the M-UPGRADE identity)

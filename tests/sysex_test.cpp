@@ -1352,6 +1352,85 @@ installer_run(const char *reader, bool log)
     };
 }
 
+// AURORA's share page: SAVE, GLO emits 56 patch bytes as nibbles, with a checksum.
+bool aurora_dump(Link &k, Bytes &patch)
+{
+    k.frames.clear();
+    k.dev.buttons_tap(1u << EMU_B_SAVE);
+    k.run_ms(50);
+    k.dev.buttons_tap(1u << EMU_B_GLO);
+    k.run_ms(50);
+    if (k.frames.size() != 1)
+        return false;
+    const Bytes &f = k.frames.front();
+    if (f.size() != 120 || f[0] != 0xF0 || f[1] != 0x7D || f[2] != 'A' || f[3] != 'U' ||
+        f[4] != 1 || f[5] != 56 || f.back() != 0xF7)
+        return false;
+    Bytes decoded;
+    uint32_t sum = 0;
+    for (size_t i = 6; i < f.size() - 2; i += 2) {
+        if (f[i] > 15 || f[i + 1] > 15)
+            return false;
+        decoded.push_back((uint8_t)(f[i] << 4 | f[i + 1]));
+        sum += f[i] + f[i + 1];
+    }
+    if ((sum & 127u) != f[f.size() - 2])
+        return false;
+    patch = std::move(decoded);
+    return true;
+}
+void aurora_run(const std::string &module, Device &dev, Link &k, Session &s, const Profile &p)
+{
+    installer_run(nullptr, false)(module, dev, k, s, p);
+    Bytes a, b;
+    check(aurora_dump(k, a), "SAVE, GLO: one complete sound dump, format 1, 56 fields and a valid checksum");
+    dev.midi_in(0xB0u << 8 | 0xBu | 83u << 16 | 99u << 24);
+    k.run_ms(50);
+    check(aurora_dump(k, a) && a[0] == 99, "CC 83 changes TILT in the sound dump");
+    dev.buttons_tap(1u << EMU_B_SAVE);
+    k.run_ms(50);
+    dev.buttons_tap(1u << EMU_B_SAVE);
+    k.run_ms(50);
+    dev.buttons_tap(1u << EMU_B_SEL);
+    k.run_ms(50);
+    dev.midi_in(0xB0u << 8 | 0xBu | 83u << 16 | 31u << 24);
+    k.run_ms(50);
+    check(aurora_dump(k, b) && b[0] == 31, "scene B edited separately, TILT 31");
+    check(dev.flash_sync(), "settings and user bank synchronised");
+    const Bytes image(dev.flash(), dev.flash() + dev.flash_size());
+    constexpr size_t settings = 0xFC000, bank = 0x98000, patch_size = 56, nslots = 16;
+    check(image[bank] == 0x5B && a.size() == patch_size &&
+              std::equal(a.begin(), a.end(), image.begin() + bank + 1),
+          "USER 1 in the device's raw bank sector: slot magic and all patch bytes");
+    check(std::all_of(image.begin() + bank + nslots * (patch_size + 1), image.begin() + bank + 4096,
+                      [](uint8_t x) { return x == 0xFF; }),
+          "the unused bank sector tail stays erased");
+    uint32_t h[3];
+    std::memcpy(h, image.data() + settings, sizeof h);
+    check(h[0] == 0x59474E44 && h[1] == 120 && h[2] == crc32(image.data() + settings + sizeof h, 120),
+          "settings use the device's DNGY header, length and CRC");
+    auto lc2 = load(module);
+    check(lc2 != nullptr, "loads a second AURORA instance");
+    if (!lc2)
+        return;
+    Device dev2(lc2->core());
+    dev2.boot_from(image.data(), (uint32_t)image.size());
+    Link k2(dev2);
+    k2.run_ms(100);
+    Bytes got;
+    check(aurora_dump(k2, got) && got == a, "staged reboot keeps every scene A field");
+    dev2.buttons_tap(1u << EMU_B_SEL);
+    k2.run_ms(50);
+    check(aurora_dump(k2, got) && got == b, "staged reboot keeps every scene B field");
+    dev2.midi_in(0xC0u << 8 | 0xCu);
+    k2.run_ms(50);
+    const uint8_t user1 = image[settings + sizeof h + 5];
+    dev2.midi_in(0xC0u << 8 | 0xCu | (uint32_t)user1 << 16);
+    k2.run_ms(50);
+    check(aurora_dump(k2, got) && got == a, "program change reloads USER 1 from the persisted bank");
+    k.worst = std::max(k.worst, k2.worst);
+}
+
 // ---- FM-106: web/Librarian.html (Roland-style F0 41 ..: 34 dump request, 30 store to a slot, 35 commit to flash) and
 // the installer's M-UPGRADE identity (platform_poll: ota_service for the frames that are not 41 ..)
 bool fm106_dump(Link &k, uint32_t idx, Bytes &r)           // requestSlotFromHardware: F0 41 34 chByte slot F7
@@ -1751,6 +1830,7 @@ const Profile kProfiles[] = {
     {"obervave", nullptr, false, "FM-1_955", false, nullptr, false, nullptr, installer_run(nullptr, false)},
     {"frodhes", nullptr, false, "FM-1_958", false, nullptr, false, nullptr, installer_run(nullptr, false)},
     {"grimm", nullptr, false, "FM-1_966", false, nullptr, false, nullptr, grimm_run},
+    {"aurora", nullptr, false, "FM-1_4747", false, nullptr, false, nullptr, aurora_run},
     {"tonitor", nullptr, false, "FM-1_700", false, nullptr, false, nullptr, tonitor_run},
     // Speak37 (its own glue): no editor and no backup (speak.c builds neither), the installers' M-UPGRADE identity
     // only, the v1.0 release package's (build.py --release 1.0: FM-1_5XY)

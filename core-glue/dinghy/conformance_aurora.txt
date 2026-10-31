@@ -1,0 +1,12 @@
+# AURORA: change HOME's TILT, save in USER 1, and keep both settings and the user bank across a staged reboot.
+save wait 100
+save knob KNOB2 +8
+save tap SAVE
+save wait 50
+save tap SAVE
+save wait 100
+save quit
+saved wait 100
+saved quit
+saved-lcd-differs
+reboot none the upstream host shim has no hardware boot guard or reset path

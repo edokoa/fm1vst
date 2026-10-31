@@ -45,6 +45,7 @@ The bundled cores, each built from its firmware's own, unmodified source (a pinn
 | `choralroot` | ChoralRoot FM-1: a chord instrument (strum, arp, pattern, harp, a bass part, a looper), forked from Felucca; its own emulator (`tools/emu`) is the core | `cores/ChoralRootFM1`, <https://github.com/Quixotic7/ChoralRootFM1> at `7d97982a7db3dad2da456a3e4d4478548b6571d9` (tag `v0.26.1`) | GPL-3.0-only, Quixotic7 (on Felucca and Melodee: their lines below) |
 | `felucca` | Felucca 1.0.1: the multi-engine synth (13 engines: ANALOG, PHASE, LOFI, SAMPLE, VOICE, TRIO, WHEEL, GRAIN, PHYS, DRUM, NOISE, FM6, SLICE; the CC0 samples), four parts, a 64-step sequencer, the song chain | `cores/Felucca`, <https://github.com/hugelton/Felucca> at `20c275e39f75fa820978032efaceddfc5283c8cb` (tag `v1.0.1`) | GPL-3.0-only, Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments |
 | `tonitor` | Tonitor 0.55: acousmatic / live-ambient firmware (six tracks of generated sound objects on seven engines, free loops, a granulator, a reverb and a delay, a modulation matrix per track), built for low vision. Its own glue (`core-glue/tonitor`): its main loop on a coroutine, its second core's jobs inline | `cores/tonitor`, <https://github.com/nzimas/tonitor> at `a240bc182b55e17fadc004d17e0b64c9eb42185f` (no tags: the commit of the Hub's package, 0.55) | GPL-3.0-only, Nuno Zimas (on Felucca and SLOOP; msfa Apache-2.0, Rings MIT, LIRA-8's architecture BSD-3) |
+| `aurora` | AURORA 0.7.10: cinematic ambient synthesis, spectral pads, swarm, air, shimmer, tape delay and freeze. Dinghy glue over its own host HAL, with the audio worker inline | `cores/aurora`, <https://github.com/twochannels/AURORA> at `68e1f2b66ebe7c17fd542707359e94e139b0562b` | GPL-3.0-only, twochannels (on Dinghy, Felucca and SLOOP, with FM-106's audio worker and Velo's sensing; Terminus Font OFL-1.1) |
 | `melodee` | Melodee 1.4.5: Felucca's fork with the FM6 (Dexed's synthesis) and CZ-1 engines, pattern banks and USB audio (the sample engines removed) | `cores/melodee`, <https://github.com/keremimo/melodee> at `398ada1e09d864c12f3b778a43e45c7c2a8031b8` (tag `v1.4.5`) | GPL-3.0-only, Felucca's copyright plus modifications Copyright (C) 2026 Kerem Kilic (Ellic Studio) |
 | `pigeon` | PIGEON 0.4.1: a performance sampler on Felucca 1.5.1 (two chopped songs, MP3 or IMA ADPCM, and a 16-pad kit; a 64-step sequencer, patterns, an arrangement); the firmware's own browser unit through the felucca_web glue, its MP3 decoder (libmad) built from its tree. No samples ship with it: load a bank with its sample loader or `tools/ko_bank.py` (below) | `cores/pigeon`, <https://github.com/TheShrimpBlimp/pigeon> at `8f34e81b6d7b03fa45ffd7443b71f9ba838ef0f7` (tag `v0.4.1`) | GPL-3.0-only, The Shrimp Blimp, on Felucca (Leo Kuroshita, Hügelton Instruments); libmad GPL-2.0-or-later; the splash logo by Dendy0097 |
 
@@ -54,6 +55,14 @@ TB303 ..), `fmini` (FMini-1 1.8.0, ruppert: a Minimoog-style monosynth), `skiff`
 groovebox) on the felucca_web glue, `grimm` (GR!MM 1.0, GRiMMBIENT: dark ambient on Dinghy) on the dinghy glue; and
 `duell` ("DUELL (unofficial build)", OSCILL/R) is un-gated. Mini-Tone's tree lacks the MIT / Apache-2.0 texts its
 LICENSING.md names: FM1VST supplies them (core-glue/felucca_web/licences/minitone/).
+
+**AURORA.** Added 2026-10-31, public: its settings and both edited scenes are kept in the device's DNGY record at
+`0xFC000`, its sixteen USER slots in the raw bank sector at `0x98000`, all in the plugin's flash state. SAVE twice
+keeps a user sound; SAVE, then GLO sends it to the [share page](https://twochannels.github.io/AURORA/share.html).
+With **Show to editors** on, use its port **Felucca (FM1VST)**. The host shim has switch keys, not the device's analog
+velocity/pressure sensing; MIDI velocity, channel/poly aftertouch, macros and clock are supported. The worker's jobs
+run inline. Its committed headers need no generators. FM1VST supplies the font notice missing from AURORA's tree in
+`core-glue/dinghy/licences/aurora/Terminus-LICENSE.txt`; the release copies it into `licences/cores/aurora/LICENSES/`.
 
 Felucca and Melodee have no emulator, only their host tests (`tests/hostsim.c`, the DSP; `tests/ui_test.c`, the UI
 against HAL stubs). Their cores are this repo's equivalent of ChoralRoot's emulator unit, written against the
@@ -93,6 +102,7 @@ a package by its SHA-256. What the public cores answer (`tests/sysex_test.cpp` c
 | `pigeon` | PIGEON | its sample loader | the bank (upload, export, erase), backup, identity FM-1_900 |
 | `loom` | LOOM-8 FM-1 | its samples page | the sample bank, fm1-base's backup, identity FM-1_10000601 |
 | `grimm` | Felucca | GR!MM's editor | its editor (sounds, slots, settings, samples), identity FM-1_966 |
+| `aurora` | Felucca | AURORA's share page | SAVE, GLO sound dump (format 1, 56 fields), identity FM-1_4747 |
 | `tonitor` | FM-1 Tonitor | its backup page | sessions and presets (LIST, READ, WRITE), identity FM-1_700 |
 | `amb`, `fomni`, `fimba`, `obervave`, `frodhes` | AMB-1 FM-1, FoMni FM-1, FiMba FM-1, Felucca | | the installer's identity |
 | `speak37` | Speak37 | its installer page | identity FM-1_510 only (no editor) |

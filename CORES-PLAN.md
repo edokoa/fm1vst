@@ -21,6 +21,14 @@ joined on a glue of its own (core-glue/speak37), public (research/cores-2026-10-
 2026.10.22 package), each its latest release.
 That makes 29 cores, 21 of them public (section 6). The per-firmware research is in `research/hub-2026-10-18/<id>.md`; this file is its summary.
 
+2026-10-31: AURORA 0.7.10 (`twochannels/AURORA`, `68e1f2b66ebe7c17fd542707359e94e139b0562b`) joined the Dinghy
+glue, public. Its own fake FM-1 supplies the inline audio worker, LCD and controls; only its script/WAV driver is
+replaced through a clang VFS overlay. Both scenes and the user bank use the device's flash formats and offsets.
+The upstream host has switch keys rather than analog sensing; MIDI expression remains available. The existing
+smoke, conformance and golden tests cover boot, sound, persistence and exact host-screen parity; the SysEx test
+checks complete sound dumps, the M-UPGRADE identity and byte-exact scene/user-slot persistence. The standalone
+`fm1emu` engine brings the current total to 31 cores, 23 public, including AURORA.
+
 ## 1. What the survey found
 
 All 21 are open source and **all 21 built natively with Apple clang and ran headless here** (screen and sound), each
@@ -58,6 +66,7 @@ asm outside its HAL or another macOS blocker. Dual-core code runs inline on the 
 | GR!MM 1.0 (added 2026-10-22) | GPL-3.0-only | Dinghy | native `tests/host.c` + wasm (`web/fm1_web.c`) | E |
 | Melodee 1.4.5 | GPL-3.0 (+ BSD-3 uPD933) | Felucca 1.0 + x0x 909 + Prophet / SID / CZ | native (`hostsim`, `ui_test`) | F |
 | PIGEON 0.4.1 (added 2026-10-22) | GPL-3.0-only (+ libmad GPL-2.0-or-later) | Felucca 1.5.1 | native + wasm (felucca_web) | A |
+| AURORA 0.7.10 (added 2026-10-31) | GPL-3.0-only (+ OFL Terminus Font) | Dinghy / Felucca, FM-106 worker and Velo sensing | native (`tests/host.c`) + wasm | E |
 
 ## 2. What breaks today
 
@@ -157,6 +166,7 @@ so these need an answer first:
 | FMini-1 | a few factory patch names name artists or marks (EMERSON, NUMAN, MOOG BASS ..): names only, the author's own patches | public (the owner's call, 2026-10-22) |
 | Skiff | SLICE's BREAK and FUNK loops are AI-generated (the YuE2 model, published under YuE2's permission for creators) | public (the owner's call, 2026-10-22); the credits say they are AI-generated |
 | GR!MM | none: its LICENSING.md leaves out Felucca's DX7-like FM patches and Dinghy's logo itself | public (2026-10-22) |
+| AURORA | GPL-3.0-only app and platform, no Dinghy logo or bundled audio samples; its LICENSING.md names a Terminus Font OFL notice missing from the tree | public (2026-10-31): FM1VST supplies the complete notice in `core-glue/dinghy/licences/aurora/`, includes it in the credits and packages it under `licences/cores/aurora/LICENSES/` |
 | No Man Sky FM | credit request | credited in the About box (the descriptor's credits, ABI 6) |
 | X0X | 909 hi-hat / ride / crash samples "ER-99 via 9W9", GPL-3.0 | gated until ER-99's author confirms they are not TR-909 ROM recordings |
 | LOOM-8 | its factory 909 hi-hat (`app/samples/909_hat.wav`) is a render of 9W9's hat samples (ER-99), X0X's open question; the rest is cleared: code GPL-3.0-only on MPL-2.0 fm1-base, Braids / PSXVerb / NuSaw MIT, the four breaks by u/FCTRYBEATS with their written permission, the recorded instruments VSCO 2 CE (CC0), fonts OFL | un-gated (the owner's call, 2026-10-21): it ships with its factory `909_hat.wav`, unchanged. In the owner's words: "ship the original, it is from the emulated 909 on the schwung firmware for Ableton Move that Charles Vestal made"; the credits name that origin. X0X stays gated (not decided) |
@@ -166,10 +176,10 @@ so these need an answer first:
 
 Gated today (left out of FM1_PUBLIC_BUILD): fm106 (Juno-106 patch data), rainbow (character
 look-alikes), fartmachine (recordings), orbit (OP-1 material, the Hugelton atlas), sloop and sloopdx (the Hugelton
-atlas), nomansky (game art), x0x (the cymbal samples). A public build bundles the other twenty-one: choralroot
+atlas), nomansky (game art), x0x (the cymbal samples). A public build bundles the other twenty-three: choralroot
 (the default), felucca, ghoulbox, jiant, purplemonkey, coralflower, melodee, fomni, fimba, amb, obervave, frodhes,
 loom (un-gated 2026-10-21), duell (un-gated 2026-10-22), minitone, fmini, skiff, grimm, pigeon, tonitor, speak37
-(added public 2026-10-22), and the fm1emu engine.
+(added public 2026-10-22), aurora (added public 2026-10-31), and the fm1emu engine.
 
 ## 7. Rules
 

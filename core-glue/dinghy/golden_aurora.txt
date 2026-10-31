@@ -1,0 +1,12 @@
+# The unmodified host sim and core at its fixed 3000 ms shot: a chord, MIDI expression and two editable pages.
+100 btn 4
+110 enc 2 8
+500 keys 0x4880
+900 keys 0
+1200 midi 0x90 69 100
+1300 midi 0xB0 80 90
+1500 midi 0xD0 70 0
+1700 midi 0x80 69 0
+2000 btn 2
+2100 enc 4 5
+3010 end
